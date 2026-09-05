@@ -1,0 +1,46 @@
+name: Build APK Android
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Memungkinkan tombol build ditekan manual
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Kode Proyek
+        uses: actions/checkout@v4
+
+      - name: Persiapkan Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies NPM
+        run: npm install
+
+      - name: Build Web (Vite)
+        run: npm run build
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Persiapkan Java (JDK)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Beri Izin Eksekusi Gradle
+        run: chmod +x ./android/gradlew
+
+      - name: Mulai Kompilasi APK
+        working-directory: ./android
+        run: ./gradlew assembleDebug
+
+      - name: Simpan dan Sediakan Link Download APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SmartKios-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk

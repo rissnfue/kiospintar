@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SmartKios</string>
+    <string name="title_activity_main">SmartKios</string>
+    <string name="package_name">com.ris.kiospintar</string>
+    <string name="custom_url_scheme">com.ris.kiospintar</string>
+</resources>
