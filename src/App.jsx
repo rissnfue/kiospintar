@@ -23,11 +23,11 @@ export default function App() {
   const [riwayat, setRiwayat] = useState([]);
   const [totalUangAsli, setTotalUangAsli] = useState(0);
   const [jumlahPalsu, setJumlahPalsu] = useState(0);
+  const [showPalsuModal, setShowPalsuModal] = useState(false);
 
   const isFirstLoad = useRef(true);
 
   useEffect(() => {
-    // SETUP NOTIFIKASI NATIVE APK (FCM)
     if (Capacitor.isNativePlatform()) {
       PushNotifications.requestPermissions().then(result => {
         if (result.receive === 'granted') {
@@ -42,7 +42,6 @@ export default function App() {
       });
     }
 
-    // MENDENGARKAN DATA DARI FIREBASE
     const riwayatRef = ref(database, 'riwayat_scan');
     const unsubscribe = onValue(riwayatRef, (snapshot) => {
       const data = snapshot.val();
@@ -176,23 +175,46 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fafafa] font-sans pb-24 selection:bg-zinc-200">
+    <div className="min-h-screen bg-[#fafafa] font-sans pb-24 selection:bg-zinc-200 relative">
       <main>
         {activeTab === 'dashboard' ? (
           <div className="animate-fade-in">
             <div className="bg-white px-6 pt-10 pb-6 border-b border-[#eeeeee]">
-              <h1 className="text-[12px] tracking-[0.2em] font-semibold text-[#111111] text-center mb-6 uppercase">
-                S m a r t  K i o s
-              </h1>
+              
+              {/* LOGO & HEADER KIOS PINTAR */}
+              <div className="flex flex-col items-center mb-6">
+                <img src="/KP_Logo.png" alt="Logo Kios Pintar" className="h-14 w-auto drop-shadow-sm mb-2" />
+                <h1 className="text-[12px] tracking-[0.2em] font-semibold text-[#111111] uppercase">
+                  Kios Pintar
+                </h1>
+              </div>
+              
               <p className="text-[13px] text-[#71717a] font-normal">Akumulasi Pendapatan Bersih</p>
               <h2 className="text-4xl font-bold text-[#09090b] mt-1 tracking-tight">
                 {formatRupiah(totalUangAsli)}
               </h2>
-              <div className="h-[1px] bg-[#f4f4f5] my-4"></div>
-              <div className="flex justify-between items-center">
-                <span className="text-[13px] text-[#71717a]">Uang Palsu</span>
-                <span className="text-[13px] text-[#09090b] font-semibold">{jumlahPalsu} Kasus</span>
+              
+              {/* TOMBOL RIWAYAT UANG PALSU */}
+              <div 
+                onClick={() => setShowPalsuModal(true)}
+                className="flex justify-between items-center mt-5 p-3 bg-[#fff1f2] rounded-xl border border-[#ffe4e6] cursor-pointer hover:bg-[#ffe4e6] transition-colors"
+              >
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-white rounded-lg flex justify-center items-center mr-3 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e11d48" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                  </div>
+                  <span className="text-[13px] text-[#e11d48] font-semibold">Kasus Uang Palsu</span>
+                </div>
+                <div className="flex items-center">
+                  <span className="text-[13px] text-[#e11d48] font-bold mr-2">{jumlahPalsu} Kasus</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e11d48" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
               </div>
+
             </div>
 
             <div className="p-5">
@@ -228,6 +250,36 @@ export default function App() {
           </div>
         )}
       </main>
+
+      {/* PANEL (MODAL) RIWAYAT UANG PALSU */}
+      {showPalsuModal && (
+        <div className="fixed inset-0 z-[100] flex flex-col justify-end">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => setShowPalsuModal(false)}></div>
+          <div className="relative bg-[#fafafa] w-full h-[75vh] rounded-t-3xl shadow-2xl flex flex-col">
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-12 h-1.5 bg-[#e4e4e7] rounded-full"></div>
+            </div>
+            <div className="bg-[#fafafa] px-6 py-4 flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-bold text-[#e11d48] tracking-tight">Riwayat Uang Palsu</h2>
+                <p className="text-[13px] text-[#71717a] mt-1">Total {jumlahPalsu} deteksi tidak valid</p>
+              </div>
+              <button onClick={() => setShowPalsuModal(false)} className="p-2 bg-white border border-[#e4e4e7] rounded-full text-[#09090b] hover:bg-[#f4f4f5]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div className="px-5 pb-5 overflow-y-auto flex-1">
+              {riwayat.filter(i => i.status === 'PALSU').length === 0 ? (
+                <p className="text-center text-[#a1a1aa] mt-10 text-[13px]">Sistem bersih. Belum ada catatan uang palsu.</p>
+              ) : (
+                riwayat.filter(i => i.status === 'PALSU').map(renderItem)
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <nav className="fixed bottom-0 w-full bg-white flex border-t border-[#eeeeee] pb-6 pt-3 px-2 z-50">
         <button 
