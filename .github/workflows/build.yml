@@ -3,7 +3,7 @@ name: Build APK Android
 on:
   push:
     branches: [ "main", "master" ]
-  workflow_dispatch: # Memungkinkan tombol build ditekan manual
+  workflow_dispatch:
 
 jobs:
   build:
@@ -15,7 +15,7 @@ jobs:
       - name: Persiapkan Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install Dependencies NPM
         run: npm install
