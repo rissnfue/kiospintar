@@ -29,8 +29,8 @@ jobs:
       - name: Persiapkan Java (JDK)
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+        distribution: 'temurin'
+        java-version: '21'
 
       - name: Beri Izin Eksekusi Gradle
         run: chmod +x ./android/gradlew
