@@ -183,7 +183,6 @@ export default function App() {
               
               {/* LOGO & HEADER KIOS PINTAR */}
               <div className="flex flex-col items-center mb-6">
-                <img src="/KP_Logo.png" alt="Logo Kios Pintar" className="h-14 w-auto drop-shadow-sm mb-2" />
                 <h1 className="text-[12px] tracking-[0.2em] font-semibold text-[#111111] uppercase">
                   Kios Pintar
                 </h1>
